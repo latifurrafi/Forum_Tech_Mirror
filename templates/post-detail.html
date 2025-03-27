@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Detail - Tech Mirror</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <i class="fas fa-code text-blue-400 text-2xl"></i>
+                    <span class="font-bold text-xl">Tech Mirror</span>
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:block flex-grow max-w-md mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search discussions..."
+                        class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <a href="create-post.html" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-1"></i> New Post
+                </a>
+
+                <div class="relative" id="userMenuContainer">
+                    <button class="flex items-center space-x-2" id="userMenuButton">
+                        <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-8 h-8 rounded-full">
+                        <span class="hidden md:inline">JohnDoe</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden"
+                        id="userMenu">
+                        <a href="profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <a href="index.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Search (visible on small screens) -->
+    <div class="md:hidden bg-gray-700 px-4 py-2">
+        <div class="relative">
+            <input type="text" placeholder="Search discussions..."
+                class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Main Content Area -->
+            <div class="md:w-3/4">
+                <!-- Dynamic Post Detail -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-3">
+                                <div>
+                                    <a href="#" class="font-medium text-gray-800 hover:text-blue-500">{{ post.author.username }}</a>
+                                    <p class="text-gray-500 text-sm">Posted {{ post.created_at|timesince }} ago in <a
+                                            href="#" class="text-blue-500 hover:underline">{{ post.category.name }}</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+
+                        <h1 class="text-2xl font-bold mt-4 mb-3">{{ post.title }}</h1>
+
+                        <!-- Dynamic Tags -->
+
+
+                        <!-- Details Section -->
+                        <div class="prose max-w-none text-gray-700 mb-6">
+                            <p class="text-gray-600 mb-4">{{ post.content }}</p>
+                        </div>
+
+                        <div class="flex items-center space-x-4 border-t border-b py-4 mb-6">
+                            <!-- Vote System -->
+                            <form method="post" action="{% url 'vote_post' post.id %}">
+                                {% csrf_token %}
+                                <button type="submit" name="value" value="1" class="text-gray-500 hover:text-blue-500">
+                                    <i class="fas fa-arrow-up"></i> Upvote ({{ upvotes }})
+                                </button>
+                                <button type="submit" name="value" value="-1" class="text-gray-500 hover:text-red-500">
+                                    <i class="fas fa-arrow-down"></i> Downvote ({{ downvotes }})
+                                </button>
+                            </form>
+                            
+
+                            <button class="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                            <form id="bookmark-form" method="post" action="{% url 'bookmark_post' post.id %}">
+                                {% csrf_token %}
+                                <button type="submit" id="bookmark-btn" class="flex items-center space-x-1 ml-auto 
+                    {% if is_bookmarked %} text-yellow-500 {% else %} text-gray-500 {% endif %}">
+                                    <i class="far fa-bookmark"></i>
+                                    <span>{% if is_bookmarked %}Saved{% else %}Save{% endif %}</span>
+                                </button>
+                            </form>
+                            <button class="flex items-center space-x-1 text-gray-500 hover:text-red-500">
+                                <i class="fas fa-flag"></i>
+                                <span>Report</span>
+                            </button>
+                        </div>
+
+                        <!-- Comment Form -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold mb-4">Add a Comment</h3>
+                            <form method="post" action="{% url 'add_comment' post.id %}">
+                                {% csrf_token %}
+                                <textarea name="text" class="w-full p-2 border rounded-lg"
+                                    placeholder="Add your comment" required></textarea>
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">Post
+                                    Comment</button>
+                            </form>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Comments ({{ post.comments.count }})</h3>
+                            {% for comment in post.comments.all %}
+                            <div class="border-b pb-4 mb-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div>
+                                            <a href="#" class="font-medium text-gray-800 hover:text-blue-500">{{ comment.user.username }}</a>
+                                            <p class="text-gray-500 text-xs">{{ comment.created_at|timesince }} ago</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </div>
+                                </div>
+
+                                <div class="pl-11">
+                                    <p class="text-gray-700 mb-2">{{ comment.text }}</p>
+                                    <div class="flex items-center space-x-4 mt-3">
+                                        <button
+                                            class="flex items-center space-x-1 text-gray-500 hover:text-blue-500 text-sm">
+                                            <i class="fas fa-arrow-up"></i>
+                                            <span>12</span>
+                                        </button>
+                                        <button
+                                            class="flex items-center space-x-1 text-gray-500 hover:text-red-500 text-sm">
+                                            <i class="fas fa-arrow-down"></i>
+                                            <span>1</span>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-blue-500 text-sm">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            <!-- Load More Comments -->
+                            <div class="text-center mt-6">
+                                <button
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
+                                    Load More Comments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="md:w-1/4">
+                <!-- About Author -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">About the Author</h3>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="https://via.placeholder.com/60" alt="User Avatar" class="w-12 h-12 rounded-full">
+                        <div>
+                            <a href="#" class="font-medium text-gray-800 hover:text-blue-500">AliceTech</a>
+                            <p class="text-gray-500 text-sm">Member since 2021</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">Frontend developer specializing in React and modern
+                        JavaScript. Currently working on web applications for fintech.</p>
+                    <div class="flex space-x-2">
+                        <a href="#" class="text-blue-500 hover:text-blue-700">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="text-blue-500 hover:text-blue-700">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-blue-500 hover:text-blue-700">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Related Posts -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Related Discussions</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">Comparing React state management libraries in 2023
+                                </h4>
+                                <p class="text-sm text-gray-600">32 comments • 2 days ago</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">How to structure large React applications</h4>
+                                <p class="text-sm text-gray-600">18 comments • 5 days ago</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">React performance optimization techniques</h4>
+                                <p class="text-sm text-gray-600">45 comments • 1 week ago</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Hot Topics -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="font-bold text-lg mb-3">Hot in Programming</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">TypeScript 5.0 features you should know about</h4>
+                                <p class="text-sm text-gray-600">87 upvotes • 64 comments</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">The future of JavaScript frameworks</h4>
+                                <p class="text-sm text-gray-600">124 upvotes • 92 comments</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">Debugging strategies for complex web apps</h4>
+                                <p class="text-sm text-gray-600">56 upvotes • 38 comments</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('bookmark-form');
+            const bookmarkBtn = document.getElementById('bookmark-btn');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.bookmarked) {
+                            bookmarkBtn.classList.add('text-yellow-500');
+                            bookmarkBtn.classList.remove('text-gray-500');
+                            bookmarkBtn.querySelector('span').textContent = 'Saved';
+                        } else {
+                            bookmarkBtn.classList.add('text-gray-500');
+                            bookmarkBtn.classList.remove('text-yellow-500');
+                            bookmarkBtn.querySelector('span').textContent = 'Save';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Toggle user menu
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+        const userMenuContainer = document.getElementById('userMenuContainer');
+
+        userMenuButton.addEventListener('click', function () {
+            userMenu.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const isClickInside = userMenuContainer.contains(event.target);
+
+            if (!isClickInside && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Handle comment submission
+        document.getElementById('commentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            alert('Comment posted successfully!');
+            this.reset();
+        });
+    </script>
+</body>
+
+</html>

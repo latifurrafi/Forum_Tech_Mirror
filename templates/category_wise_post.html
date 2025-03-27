@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Posts - Tech Mirror</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <i class="fas fa-code text-blue-400 text-2xl"></i>
+                    <span class="font-bold text-xl">Tech Mirror</span>
+                </a>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="hidden md:block flex-grow max-w-md mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search discussions..." class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <a href="create-post.html" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-1"></i> New Post
+                </a>
+                
+                <div class="relative" id="userMenuContainer">
+                    <button class="flex items-center space-x-2" id="userMenuButton">
+                        <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-8 h-8 rounded-full">
+                        <span class="hidden md:inline">JohnDoe</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+                    
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden" id="userMenu">
+                        <a href="profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <a href="index.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Search (visible on small screens) -->
+    <div class="md:hidden bg-gray-700 px-4 py-2">
+        <div class="relative">
+            <input type="text" placeholder="Search discussions..." class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Left Sidebar - Categories -->
+            <div class="md:w-1/4">
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Categories</h3>
+                    <ul class="space-y-2" id="categories-list">
+                        <li class="animate-pulse">
+                            <div class="h-6 bg-gray-200 rounded w-full"></div>
+                        </li>
+                        <li class="animate-pulse">
+                            <div class="h-6 bg-gray-200 rounded w-full"></div>
+                        </li>
+                        <li class="animate-pulse">
+                            <div class="h-6 bg-gray-200 rounded w-full"></div>
+                        </li>
+                        <li class="animate-pulse">
+                            <div class="h-6 bg-gray-200 rounded w-full"></div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Popular Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">JavaScript</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">Python</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">React</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">Django</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">AWS</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">Docker</span>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-100">AI</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area - Posts -->
+            <div class="md:w-3/4">
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold" id="category-title">All Posts</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-gray-600 text-sm">Sort by:</span>
+                            <select id="sort-select" class="bg-gray-100 border-0 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="newest">Newest</option>
+                                <option value="popular">Most Upvotes</option>
+                                <option value="comments">Most Comments</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Posts List -->
+                    <div class="space-y-6" id="posts-container">
+                        <!-- Loading state -->
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                            <div class="h-20 bg-gray-200 rounded mb-3"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                            <div class="h-20 bg-gray-200 rounded mb-3"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- No posts message (hidden by default) -->
+                    <div id="no-posts-message" class="hidden py-8 text-center">
+                        <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500 text-lg">No posts found in this category</p>
+                        <a href="create-post.html" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+                            <i class="fas fa-plus mr-2"></i> Create the first post
+                        </a>
+                    </div>
+                    
+                    <!-- Load More Button -->
+                    <div class="text-center py-4" id="load-more-container">
+                        <button id="load-more-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
+                            Load More
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle user menu
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+        const userMenuContainer = document.getElementById('userMenuContainer');
+        
+        userMenuButton.addEventListener('click', function() {
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const isClickInside = userMenuContainer.contains(event.target);
+            
+            if (!isClickInside && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // API URL - replace with your actual API endpoint
+        const API_BASE_URL = 'http://127.0.0.1:8000/api';
+        
+        // State variables
+        let currentCategory = null;
+        let currentPage = 1;
+        let currentSort = 'newest';
+        let hasMorePosts = true;
+        
+        // DOM elements
+        const categoriesList = document.getElementById('categories-list');
+        const categoryTitle = document.getElementById('category-title');
+        const postsContainer = document.getElementById('posts-container');
+        const noPostsMessage = document.getElementById('no-posts-message');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const loadMoreContainer = document.getElementById('load-more-container');
+        const sortSelect = document.getElementById('sort-select');
+        
+        // Fetch categories from API
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories/categories/`);
+                if (!response.ok) throw new Error('Failed to fetch categories');
+                
+                const data = await response.json();
+                renderCategories(data.results || data); // Handle both paginated and non-paginated responses
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                categoriesList.innerHTML = '<li class="text-red-500">Failed to load categories</li>';
+            }
+        }
+        
+        // Render categories in the sidebar
+        function renderCategories(categories) {
+            if (!categories || categories.length === 0) {
+                categoriesList.innerHTML = '<li>No categories available</li>';
+                return;
+            }
+            
+            const html = categories.map(category => `
+                <li>
+                    <a href="#" 
+                       class="flex items-center text-gray-700 hover:text-blue-500 py-1 category-link ${currentCategory === category.slug ? 'font-bold text-blue-500' : ''}" 
+                       data-slug="${category.slug}">
+                        <i class="fas fa-${category.icon || 'folder'} mr-2 text-${category.color || 'blue-500'}"></i>
+                        <span>${category.name}</span>
+                        <span class="ml-auto bg-gray-200 text-gray-700 px-2 py-1 text-xs rounded-full">${category.post_count}</span>
+                    </a>
+                </li>
+            `).join('');
+            
+            categoriesList.innerHTML = html;
+            
+            // Add event listeners to category links
+            document.querySelectorAll('.category-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = link.dataset.slug;
+                    selectCategory(slug);
+                });
+            });
+        }
+        
+        // Select a category and load its posts
+        function selectCategory(slug) {
+            currentCategory = slug;
+            currentPage = 1;
+            hasMorePosts = true;
+            
+            // Update UI to show selected category
+            document.querySelectorAll('.category-link').forEach(link => {
+                if (link.dataset.slug === slug) {
+                    link.classList.add('font-bold', 'text-blue-500');
+                } else {
+                    link.classList.remove('font-bold', 'text-blue-500');
+                }
+            });
+            
+            // Update category title
+            const selectedCategory = document.querySelector(`.category-link[data-slug="${slug}"]`);
+            if (selectedCategory) {
+                categoryTitle.textContent = `${selectedCategory.querySelector('span').textContent} Posts`;
+            } else {
+                categoryTitle.textContent = 'All Posts';
+            }
+            
+            // Fetch posts for the selected category
+            fetchPosts();
+        }
+        
+        // Fetch posts from API
+        async function fetchPosts() {
+            try {
+                // Show loading state on first page
+                if (currentPage === 1) {
+                    postsContainer.innerHTML = `
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                            <div class="h-20 bg-gray-200 rounded mb-3"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                            <div class="h-20 bg-gray-200 rounded mb-3"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                    `;
+                }
+                
+                // Build the URL based on current filters
+                let url = `${API_BASE_URL}/posts/?page=${currentPage}`;
+                
+                if (currentCategory) {
+                    url = `${API_BASE_URL}/posts/by_category/?slug=${currentCategory}&page=${currentPage}`;
+                }
+                
+                // Add sorting
+                if (currentSort === 'popular') {
+                    url += '&ordering=-upvotes';
+                } else if (currentSort === 'comments') {
+                    url += '&ordering=-comments_count';
+                } else {
+                    url += '&ordering=-created_at';
+                }
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch posts');
+                
+                const data = await response.json();
+                const posts = data.results || data;
+                
+                // Check if there are more pages
+                if (data.next) {
+                    hasMorePosts = true;
+                    loadMoreContainer.classList.remove('hidden');
+                } else {
+                    hasMorePosts = false;
+                    loadMoreContainer.classList.add('hidden');
+                }
+                
+                // Render posts
+                renderPosts(posts, currentPage > 1);
+                
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                if (currentPage === 1) {
+                    postsContainer.innerHTML = '<div class="text-red-500 py-4">Failed to load posts. Please try again later.</div>';
+                }
+            }
+        }
+        
+        // Render posts in the main content area
+        function renderPosts(posts, append = false) {
+            if (!posts || posts.length === 0) {
+                if (!append) {
+                    postsContainer.innerHTML = '';
+                    noPostsMessage.classList.remove('hidden');
+                }
+                return;
+            }
+            
+            noPostsMessage.classList.add('hidden');
+            
+            const html = posts.map(post => `
+                <div class="border-b pb-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">
+                                <a href="post-detail.html?id=${post.id}" class="hover:text-blue-500">${post.title}</a>
+                            </h3>
+                            <p class="text-gray-500 text-sm mb-2">
+                                Posted ${formatDate(post.created_at)} by 
+                                <a href="profile.html?username=${post.author.username}" class="text-blue-500 hover:underline">${post.author.username}</a> 
+                                in <a href="#" class="text-blue-500 hover:underline category-link" data-slug="${post.category.slug}">${post.category.name}</a>
+                            </p>
+                        </div>
+                        <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-3">${truncateText(post.content, 200)}</p>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-1 text-gray-500">
+                            <i class="fas fa-arrow-up ${post.user_vote === 'upvote' ? 'text-blue-500' : ''}"></i>
+                            <span>${post.upvotes}</span>
+                        </div>
+                        <div class="flex items-center space-x-1 text-gray-500">
+                            <i class="fas fa-comment"></i>
+                            <span>${post.comments_count} comments</span>
+                        </div>
+                        <div class="flex items-center space-x-1 text-gray-500">
+                            <i class="fas fa-eye"></i>
+                            <span>${post.views} views</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1 ml-auto">
+                            ${post.tags.map(tag => `
+                                <span class="bg-gray-200 text-gray-700 px-2 py-0.5 text-xs rounded-full">${tag.name}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (append) {
+                postsContainer.innerHTML += html;
+            } else {
+                postsContainer.innerHTML = html;
+            }
+            
+            // Add event listeners to category links inside posts
+            document.querySelectorAll('.category-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = link.dataset.slug;
+                    selectCategory(slug);
+                });
+            });
+        }
+        
+        // Helper function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return 'today';
+            } else if (diffDays === 1) {
+                return 'yesterday';
+            } else if (diffDays < 7) {
+                return `${diffDays} days ago`;
+            } else if (diffDays < 30) {
+                const weeks = Math.floor(diffDays / 7);
+                return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+            } else {
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+        }
+        
+        // Helper function to truncate text
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substr(0, maxLength) + '...';
+        }
+        
+        // Load more posts
+        loadMoreBtn.addEventListener('click', () => {
+            if (hasMorePosts) {
+                currentPage++;
+                fetchPosts();
+            }
+        });
+        
+        // Handle sort change
+        sortSelect.addEventListener('change', () => {
+            currentSort = sortSelect.value;
+            currentPage = 1;
+            fetchPosts();
+        });
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
+            fetchPosts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Tech Mirror</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-code text-blue-400 text-2xl"></i>
+                    <span class="font-bold text-xl">Tech Mirror</span>
+                </a>
+            </div>
+            <div class="space-x-4">
+                <a href="login.html" class="hover:text-blue-300">Login</a>
+                <a href="register.html" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="container mx-auto px-4 py-16">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-blue-500 text-white py-4 px-6">
+                <h2 class="text-2xl font-bold">Welcome Back</h2>
+                <p>Log in to your Tech Mirror account</p>
+            </div>
+            
+            <form id="loginForm" class="py-6 px-8" onsubmit="return handleLogin()">
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 font-medium mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <div class="flex justify-end mt-1">
+                        <a href="#" class="text-sm text-blue-500 hover:underline">Forgot password?</a>
+                    </div>
+                </div>
+                
+                <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+                
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg">Log In</button>
+            </form>
+            
+            <div class="py-4 px-8 bg-gray-50 border-t">
+                <p class="text-center text-gray-700">Don't have an account? <a href="register.html" class="text-blue-500 hover:underline">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset error message
+            errorMessage.classList.add('hidden');
+            
+            // Simple validation (in a real app, this would be server-side)
+            if (email === 'user@example.com' && password === 'password123!') {
+                // Redirect to dashboard on successful login
+                window.location.href = 'dashboard.html';
+            } else {
+                // Show error message
+                errorMessage.textContent = 'Invalid email or password';
+                errorMessage.classList.remove('hidden');
+            }
+            
+            // Prevent form submission
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tech Mirror</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <i class="fas fa-code text-blue-400 text-2xl"></i>
+                    <span class="font-bold text-xl">Tech Mirror</span>
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:block flex-grow max-w-md mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search discussions..."
+                        class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'create-post' %}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-1"></i> New Post
+                </a>
+
+                <div class="relative" id="userMenuContainer">
+                    <button class="flex items-center space-x-2" id="userMenuButton">
+                        <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-8 h-8 rounded-full">
+                        <span class="hidden md:inline">{{ user.username }}</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+                
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden"
+                        id="userMenu">
+                        <a href="{% url 'user_profile' user.username %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Search (visible on small screens) -->
+    <div class="md:hidden bg-gray-700 px-4 py-2">
+        <div class="relative">
+            <input type="text" placeholder="Search discussions..."
+                class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button class="absolute right-0 top-0 h-full px-4 text-gray-400">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Left Sidebar -->
+            <div class="md:w-1/4">
+                <!-- Dynamic Categories -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Categories</h3>
+                    <ul class="space-y-2">
+                        {% for category in categories %}
+                        <li>
+                            <a href="{% url 'category_posts' category.id %}"
+                                class="flex items-center text-gray-700 hover:text-blue-500">
+                                <i class="fas fa-folder mr-2 text-blue-500"></i>
+                                <span>{{ category.name }}</span>
+                                <span class="ml-auto bg-gray-200 text-gray-700 px-2 py-1 text-xs rounded-full">{{ category.post_count }}</span>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li>No categories available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Dynamic Tags -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="font-bold text-lg mb-3">Popular Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in tags %}
+                        <a href="#" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-full text-sm">#{{ tag }}</a>
+                        {% empty %}
+                        <span>No tags available</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Main Content Area -->
+            <div class="md:w-2/4">
+                <!-- Post Sorting Options -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Latest Discussions</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-gray-600 text-sm">Sort by:</span>
+                            <select
+                                class="bg-gray-100 border-0 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option>Newest</option>
+                                <option>Popular</option>
+                                <option>Most Comments</option>
+                                <option>Most Upvotes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts List -->
+                <div class="space-y-6">
+                    <!-- Post 1 -->
+                    {% for post in posts %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center space-x-3">
+                                    <img src="{{ post.author.profile.avatar.url }}"
+                                        alt="{{ post.author.username }}'s Avatar" class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <a href="#" class="font-medium text-gray-800 hover:text-blue-500">{{ post.author.username }}</a>
+                                        <p class="text-gray-500 text-sm">Posted {{ post.created_at|timesince }} ago in
+                                            <a href="#" class="text-blue-500 hover:underline">{{ post.category.name }}</a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </div>
+                            </div>
+
+                            <h3 class="text-xl font-bold mt-3 mb-2">
+                                <a href="{% url 'post-detail' post.id %}" class="hover:text-blue-500">{{ post.title }}</a>
+                            </h3>
+
+                            <p class="text-gray-600 mb-4">{{ post.content|truncatewords:40 }}</p>
+
+                            <div class="flex items-center space-x-4">
+                                <!-- Vote System -->
+                                <form method="post" action="{% url 'vote_post' post.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" name="value" value="1" class="text-gray-500 hover:text-blue-500">
+                                        <i class="fas fa-arrow-up"></i> Up ({{ post.upvotes }})
+                                    </button>
+                                    <button type="submit" name="value" value="-1" class="text-gray-500 hover:text-red-500">
+                                        <i class="fas fa-arrow-down"></i> Down ({{ post.downvotes }})
+                                    </button>
+                                </form>
+                            
+                                <!-- for comment -->
+                                <a href="{% url 'post-detail' post.id %}"
+                                    class="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+                                    <i class="fas fa-comment"></i>
+                                    <span>{{ post.comments.count }} comments</span>
+                                </a>
+
+
+                                <form method="post" action="{% url 'bookmark-post' post.id %}" class="bookmark-form" data-post-id="{{ post.id }}">
+                                    {% csrf_token %}
+                                    <button type="button" class="bookmark-btn flex items-center space-x-1 text-gray-500 hover:text-yellow-500">
+                                        <i class="far fa-bookmark {% if post.id in user_bookmarks %}fas text-yellow-500{% else %}far{% endif %}"></i>
+                                    </button>
+                                </form>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No posts available.</p>
+                    {% endfor %}
+
+                    <!-- Load More Button -->
+                    <div class="text-center py-4">
+                        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
+                            Load More
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="md:w-1/4">
+                <!-- User Stats -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Your Stats</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Posts</span>
+                            <span class="font-medium">{{ post_count }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Comments</span>
+                            <span class="font-medium">{{ comment_count }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Upvotes Received</span>
+                            <span class="font-medium">{{ upvotes_received }}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Trending Topics -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">Trending Topics</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">#WebAssembly</h4>
+                                <p class="text-sm text-gray-600">Growing interest in WASM for web performance</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">#QuantumComputing</h4>
+                                <p class="text-sm text-gray-600">Latest breakthroughs and practical applications</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:bg-gray-50 p-2 rounded">
+                                <h4 class="font-medium text-blue-500">#DevSecOps</h4>
+                                <p class="text-sm text-gray-600">Integrating security into the development pipeline</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Community Rules -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="font-bold text-lg mb-3">Community Guidelines</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Be respectful and constructive in discussions</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Provide code examples when relevant</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Properly format and document your questions</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-2"></i>
+                            <span>No spam, self-promotion, or harassment</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ------------------------------BookMark Purpose---------------------------------------------
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".bookmark-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    let form = this.closest(".bookmark-form");
+                    let postId = form.getAttribute("data-post-id");
+                    let csrfToken = form.querySelector("input[name=csrfmiddlewaretoken]").value;
+                    let icon = this.querySelector("i");
+
+                    fetch(`/bookmark/${postId}/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrfToken,
+                            "X-Requested-With": "XMLHttpRequest",
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.bookmarked) {
+                            icon.classList.remove("far");
+                            icon.classList.add("fas", "text-yellow-500");
+                        } else {
+                            icon.classList.remove("fas", "text-yellow-500");
+                            icon.classList.add("far");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            });
+        });
+        // ------------------------------BookMark Purpose---------------------------------------------
+
+        // Toggle user menu
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+
+        userMenuButton.addEventListener('click', function () {
+            userMenu.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const isClickInside = userMenuContainer.contains(event.target);
+
+            if (!isClickInside && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

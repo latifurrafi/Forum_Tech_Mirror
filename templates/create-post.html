@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post - Tech Mirror</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <i class="fas fa-code text-blue-400 text-2xl"></i>
+                    <span class="font-bold text-xl">Tech Mirror</span>
+                </a>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <div class="relative" id="userMenuContainer">
+                    <button class="flex items-center space-x-2" id="userMenuButton">
+                        <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-8 h-8 rounded-full">
+                        <span class="hidden md:inline">JohnDoe</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden"
+                        id="userMenu">
+                        <a href="profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <a href="index.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-blue-500 text-white py-4 px-6">
+                    <h2 class="text-2xl font-bold">Create a New Post</h2>
+                    <p>Share your thoughts, questions, or insights with the community</p>
+                </div>
+
+                <form method="POST" class="p-6">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label for="title" class="block text-gray-700 font-medium mb-2">Title</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="category" class="block text-gray-700 font-medium mb-2">Category</label>
+                        {{ form.category }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="tags" class="block text-gray-700 font-medium mb-2">Tags (comma separated)</label>
+                        {{ form.tags }}
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="content" class="block text-gray-700 font-medium mb-2">Content</label>
+                        <div class="border rounded-lg overflow-hidden">
+                            <div class="bg-gray-100 border-b p-2 flex space-x-2">
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-bold" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-italic" title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-link" title="Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-code" title="Code">
+                                    <i class="fas fa-code"></i>
+                                </button>
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-list" title="List">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="p-1 hover:bg-gray-200 rounded toolbar-image" title="Image">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                            </div>                        
+                            <!-- Text Area -->
+                            {{ form.content }}
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">You can use Markdown for formatting</p>
+                    </div>
+
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="guidelines" name="guidelines" class="mr-2" required>
+                        <label for="guidelines" class="text-gray-700">I have read and agree to the <a href="#"
+                                class="text-blue-500 hover:underline">community guidelines</a></label>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="{% url 'homepage' %}"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">Cancel</a>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+                            Publish Post
+                        </button>
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const contentField = document.getElementById("content");
+    
+            // Function to insert text with formatting at the cursor's position
+            function insertText(startTag, endTag = "") {
+                const start = contentField.selectionStart;
+                const end = contentField.selectionEnd;
+                const text = contentField.value;
+    
+                const before = text.substring(0, start);
+                const selected = text.substring(start, end);
+                const after = text.substring(end);
+    
+                // Insert the text with formatting
+                contentField.value = before + startTag + selected + endTag + after;
+    
+                // Restore cursor position
+                contentField.selectionStart = start + startTag.length;
+                contentField.selectionEnd = end + startTag.length;
+                contentField.focus();
+            }
+    
+            // Event listeners for toolbar buttons
+            document.querySelector(".toolbar-bold").addEventListener("click", function () {
+                insertText("**", "**"); // Bold: **text**
+            });
+    
+            document.querySelector(".toolbar-italic").addEventListener("click", function () {
+                insertText("*", "*"); // Italic: *text*
+            });
+    
+            document.querySelector(".toolbar-link").addEventListener("click", function () {
+                insertText("[", "](https://example.com)"); // Link: [text](url)
+            });
+    
+            document.querySelector(".toolbar-code").addEventListener("click", function () {
+                insertText("`", "`"); // Inline code: `text`
+            });
+    
+            document.querySelector(".toolbar-list").addEventListener("click", function () {
+                insertText("- ", ""); // List item: - text
+            });
+    
+            document.querySelector(".toolbar-image").addEventListener("click", function () {
+                insertText("![", "](https://example.com/image.png)"); // Image: ![text](image_url)
+            });
+        });
+    
+        // Toggle user menu
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+        const userMenuContainer = document.getElementById('userMenuContainer');
+    
+        if (userMenuButton) {
+            userMenuButton.addEventListener('click', function () {
+                userMenu.classList.toggle('hidden');
+            });
+        }
+    
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const isClickInside = userMenuContainer.contains(event.target);
+    
+            if (!isClickInside && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    
+        // Handle post submission
+        function handlePostSubmit() {
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const content = document.getElementById('content').value;
+    
+            // In a real app, this would submit to a server
+            // For demo purposes, we'll just redirect to the dashboard
+            alert('Post published successfully!');
+            window.location.href = '/';
+            return false; // Prevent form submission
+        }
+    </script>
+    
+</body>
+
+</html>

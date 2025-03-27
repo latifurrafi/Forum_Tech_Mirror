@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile | Forum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="md:flex">
+                <div class="md:w-1/3 p-6 flex flex-col items-center justify-center border-r border-gray-200">
+                    <div class="relative group">
+                        <img id="profile-image" 
+                             src="{{ user.profile.avatar.url }}" 
+                             alt="{{ user.username }}" 
+                             class="w-48 h-48 rounded-full object-cover border-4 border-indigo-500">
+                    
+                        <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" 
+                             onclick="document.getElementById('avatar-upload').click()">
+                            <i class="fas fa-camera text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <input type="file" id="avatar-upload" name="avatar" accept=".jpg,.jpeg,.png" class="hidden">
+                    
+                    <form id="avatar-form" method="post" enctype="multipart/form-data" action="{% url 'update_avatar' user.username %}" class="mt-4">
+                        {% csrf_token %}
+                        <input type="file" id="avatar-upload" name="avatar" class="hidden" onchange="document.getElementById('avatar-form').submit()">
+                        <button type="button" onclick="document.getElementById('avatar-upload').click()" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition">
+                            Change Avatar
+                        </button>
+                    </form>
+                </div>
+                <div class="md:w-2/3 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-3xl font-bold text-gray-800">{{ user.username }}</h1>
+                        <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                            Activity Score: {{ user.profile.activity_score }}
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2">Bio</h2>
+                        <p class="text-gray-600">{{ user.profile.bio|default:"No bio provided yet." }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2">Email</h2>
+                        <p class="text-gray-600">{{ user.email }}</p>
+                    </div>
+                    <div class="flex flex-wrap -mx-2">
+                        <div class="w-1/2 px-2 mb-4 md:w-1/4">
+                            <div class="bg-indigo-50 p-4 rounded-lg text-center">
+                                <span class="block text-2xl font-bold text-indigo-600">{{ post_count }}</span>
+                                <span class="text-gray-600">Posts</span>
+                            </div>
+                        </div>
+                        <div class="w-1/2 px-2 mb-4 md:w-1/4">
+                            <div class="bg-indigo-50 p-4 rounded-lg text-center">
+                                <span class="block text-2xl font-bold text-indigo-600">{{ comment_count }}</span>
+                                <span class="text-gray-600">Comments</span>
+                            </div>
+                        </div>
+                        <div class="w-1/2 px-2 mb-4 md:w-1/4">
+                            <div class="bg-indigo-50 p-4 rounded-lg text-center">
+                                <span class="block text-2xl font-bold text-indigo-600">{{ upvote_count }}</span>
+                                <span class="text-gray-600">Upvotes</span>
+                            </div>
+                        </div>
+                        <div class="w-1/2 px-2 mb-4 md:w-1/4">
+                            <div class="bg-indigo-50 p-4 rounded-lg text-center">
+                                <span class="block text-2xl font-bold text-indigo-600">{{ downvote_count }}</span>
+                                <span class="text-gray-600">Downvotes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Chart -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6 p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Activity</h2>
+            <div class="flex mb-4">
+                <button id="daily-btn" class="bg-indigo-500 text-white px-4 py-2 rounded-l-md hover:bg-indigo-600 transition">Daily</button>
+                <button id="monthly-btn" class="bg-white text-indigo-500 border border-indigo-500 px-4 py-2 hover:bg-indigo-50 transition">Monthly</button>
+                <button id="yearly-btn" class="bg-white text-indigo-500 border border-indigo-500 px-4 py-2 rounded-r-md hover:bg-indigo-50 transition">Yearly</button>
+            </div>
+            <div class="h-80">
+                <canvas id="activity-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- User Posts -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Posts by {{ user.username }}</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for post in posts %}
+                <div class="p-6 hover:bg-gray-50 transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-semibold text-indigo-600 hover:text-indigo-700 transition">
+                            <a href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+                        </h3>
+                        <span class="text-sm text-gray-500">{{ post.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <p class="text-gray-600 mb-3 line-clamp-2">{{ post.content|truncatewords:30 }}</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <span class="mr-4"><i class="far fa-comment mr-1"></i> {{ post.comment_count }} comments</span>
+                        <span class="mr-4"><i class="far fa-thumbs-up mr-1"></i> {{ post.upvote_count }} upvotes</span>
+                        <span><i class="far fa-thumbs-down mr-1"></i> {{ post.downvote_count }} downvotes</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="p-6 text-center text-gray-500">
+                    <p>No posts yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% if posts.has_other_pages %}
+            <div class="p-6 border-t border-gray-200 flex justify-center">
+                <div class="flex">
+                    {% if posts.has_previous %}
+                    <a href="?page={{ posts.previous_page_number }}" class="px-4 py-2 mx-1 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Previous</a>
+                    {% endif %}
+                    
+                    {% for num in posts.paginator.page_range %}
+                        {% if posts.number == num %}
+                        <span class="px-4 py-2 mx-1 bg-indigo-500 text-white border border-indigo-500 rounded-md">{{ num }}</span>
+                        {% else %}
+                        <a href="?page={{ num }}" class="px-4 py-2 mx-1 bg-white border border-gray-300 rounded-md hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}" class="px-4 py-2 mx-1 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Activity Chart
+        const ctx = document.getElementById('activity-chart').getContext('2d');
+        let activityChart;
+        
+        // Sample data - in a real application, you would fetch this from your Django backend
+        const dailyData = {
+            labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+            datasets: [{
+                label: 'Activity',
+                data: Array.from({length: 30}, () => Math.floor(Math.random() * 10)),
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        };
+        
+        const monthlyData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Activity',
+                data: Array.from({length: 12}, () => Math.floor(Math.random() * 100)),
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        };
+        
+        const yearlyData = {
+            labels: Array.from({length: 5}, (_, i) => `${new Date().getFullYear() - 4 + i}`),
+            datasets: [{
+                label: 'Activity',
+                data: Array.from({length: 5}, () => Math.floor(Math.random() * 500)),
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        };
+        
+        function createChart(data) {
+            if (activityChart) {
+                activityChart.destroy();
+            }
+            
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize with daily data
+        createChart(dailyData);
+        
+        // Button event listeners
+        document.getElementById('daily-btn').addEventListener('click', function() {
+            createChart(dailyData);
+            this.classList.remove('bg-white', 'text-indigo-500');
+            this.classList.add('bg-indigo-500', 'text-white');
+            document.getElementById('monthly-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('monthly-btn').classList.add('bg-white', 'text-indigo-500');
+            document.getElementById('yearly-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('yearly-btn').classList.add('bg-white', 'text-indigo-500');
+        });
+        
+        document.getElementById('monthly-btn').addEventListener('click', function() {
+            createChart(monthlyData);
+            this.classList.remove('bg-white', 'text-indigo-500');
+            this.classList.add('bg-indigo-500', 'text-white');
+            document.getElementById('daily-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('daily-btn').classList.add('bg-white', 'text-indigo-500');
+            document.getElementById('yearly-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('yearly-btn').classList.add('bg-white', 'text-indigo-500');
+        });
+        
+        document.getElementById('yearly-btn').addEventListener('click', function() {
+            createChart(yearlyData);
+            this.classList.remove('bg-white', 'text-indigo-500');
+            this.classList.add('bg-indigo-500', 'text-white');
+            document.getElementById('daily-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('daily-btn').classList.add('bg-white', 'text-indigo-500');
+            document.getElementById('monthly-btn').classList.remove('bg-indigo-500', 'text-white');
+            document.getElementById('monthly-btn').classList.add('bg-white', 'text-indigo-500');
+        });
+        
+        // Preview uploaded image before form submission
+        document.getElementById('avatar-upload').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-image').src = e.target.result;
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
