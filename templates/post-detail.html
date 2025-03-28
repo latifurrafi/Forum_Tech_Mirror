@@ -83,6 +83,8 @@
                     <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div class="flex items-center space-x-3">
+                                <img src="{{ post.author.profile.avatar.url }}"
+                                        alt="{{ post.author.username }}'s Avatar" class="w-10 h-10 rounded-full">
                                 <div>
                                     <a href="#" class="font-medium text-gray-800 hover:text-blue-500">{{ post.author.username }}</a>
                                     <p class="text-gray-500 text-sm">Posted {{ post.created_at|timesince }} ago in <a

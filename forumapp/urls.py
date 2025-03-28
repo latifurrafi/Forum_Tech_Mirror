@@ -15,6 +15,6 @@ urlpatterns = [
     path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark-post'),
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
     path('profile/<str:username>/update-avatar/', views.update_avatar, name='update_avatar'),
+    path('api/trending/', views.trending_topics_api, name='trending_topics_api'),
 
-    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -12,6 +12,11 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
+from django.utils.timezone import timedelta, now
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import TrendingTopicSerializer
+
 
 
 def homepage(request):
@@ -115,7 +120,6 @@ def bookmark_post(request, post_id):
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-
 logger = logging.getLogger(__name__)
 
 @login_required
@@ -149,8 +153,6 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-
-
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comment_text = request.POST.get('text')
@@ -162,12 +164,28 @@ def add_comment(request, post_id):
     Comment.objects.create(post=post, user=request.user, text=comment_text)
     messages.success(request, "your comment has been posted successfully")
     return redirect('post-detail', post_id = post.id)
-    
+
+
 def category_posts(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    posts = category.post_set.all()  # ✅ Correct reverse relation
-    return render(request, 'category_wise_post.html', {'category': category, 'posts': posts})
-
+    post_list = Post.objects.filter(category=category).order_by('-created_at')
+    
+    # Handle sorting
+    sort = request.GET.get('sort', 'newest')
+    if sort == 'oldest':
+        post_list = post_list.order_by('created_at')
+    elif sort == 'popular':
+        post_list = post_list.order_by('-view_count')
+    
+    # Pagination
+    paginator = Paginator(post_list, 9)  # 9 posts per page
+    page = request.GET.get('page', 1)
+    posts = paginator.get_page(page)
+    
+    return render(request, 'category_wise_post.html', {
+        'category': category,
+        'posts': posts,
+    })
 
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
@@ -208,3 +226,18 @@ def update_avatar(request, username):
         profile.save()
 
     return redirect('user_profile', username=user.username)
+
+@api_view(['GET'])
+def trending_topics_api(request):
+    trending_topics = get_trending_topics()
+    serializer = TrendingTopicSerializer(trending_topics, many=True)
+    return Response(serializer.data)
+
+def get_trending_topics():
+    last_24_hours = now() - timedelta(hours=24)
+    trending_topics = Discussion.objects.filter(created_at__gte=last_24_hours) \
+        .annotate(activity_score=(Count('upvotes') + Count('views') + Count('comments_count'))) \
+        .order_by('-activity_score')[:5]  # Get top 5 trending topics
+    return trending_topics
+
+

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 
 def validate_image_format(value):
     if not value.name.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -38,6 +39,7 @@ class Post(models.Model):
     tags = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    views = models.IntegerField(default=0)
     
     def __str__(self):
         return self.title
@@ -106,3 +108,14 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
 
+class Discussion(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    tags = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvotes = models.PositiveIntegerField(default=0)
+    views = models.PositiveIntegerField(default=0)
+    comments_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.title
