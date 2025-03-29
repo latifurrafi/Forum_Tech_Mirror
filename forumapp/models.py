@@ -1,9 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
+from django.db.models.signals import post_save, post_delete
 
 def validate_image_format(value):
     if not value.name.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -15,15 +15,26 @@ class UserProfile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', validators=[validate_image_format], default='avatars/default.jpg')
     bio = models.TextField(blank=True, null=True)
     activity_score = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-# Automatically create a UserProfile when a new User is created
+    @staticmethod
+    def get_or_create_profile(user):
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        return profile
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.get_or_create_profile(instance)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Category(models.Model):
@@ -36,13 +47,14 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    tags = models.CharField(max_length=255, blank=True)
+    tags = models.CharField(max_length=255, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     views = models.IntegerField(default=0)
     
     def __str__(self):
         return self.title
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
@@ -52,6 +64,14 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
+        
+@receiver(post_save, sender=Comment)
+@receiver(post_delete, sender=Comment)
+def update_comment_count(sender, instance, **kwargs):
+    post = instance.post
+    post.comments_count = post.comments.count()
+    post.save()
+
 
 class Vote(models.Model):
     UPVOTE = 1
@@ -71,6 +91,14 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"Vote by {self.user.username} on {self.post.title}"
+
+    @staticmethod
+    def update_vote(user, post, value):
+        vote, created = Vote.objects.update_or_create(
+            user=user, post=post, defaults={'value': value}
+        )
+        return vote
+
         
 # Report Model
 class Report(models.Model):
@@ -111,7 +139,7 @@ class Bookmark(models.Model):
 class Discussion(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    tags = models.CharField(max_length=255)
+    tags = models.CharField(max_length=255, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     upvotes = models.PositiveIntegerField(default=0)
     views = models.PositiveIntegerField(default=0)

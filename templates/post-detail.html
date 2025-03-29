@@ -205,14 +205,14 @@
                 <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                     <h3 class="font-bold text-lg mb-3">About the Author</h3>
                     <div class="flex items-center space-x-3 mb-3">
-                        <img src="https://via.placeholder.com/60" alt="User Avatar" class="w-12 h-12 rounded-full">
+                        <img src="{{ post.author.profile.avatar.url }}"
+                        alt="{{ post.author.username }}'s Avatar" class="w-10 h-10 rounded-full">
                         <div>
                             <a href="#" class="font-medium text-gray-800 hover:text-blue-500">AliceTech</a>
-                            <p class="text-gray-500 text-sm">Member since 2021</p>
+                            <p class="text-gray-500 text-sm">Member since {{ profile_created_at|timesince }} ago</p>
                         </div>
                     </div>
-                    <p class="text-gray-600 text-sm mb-3">Frontend developer specializing in React and modern
-                        JavaScript. Currently working on web applications for fintech.</p>
+                    <p class="text-gray-600 text-sm mb-3">{{ user.profile.bio|default:"No bio available." }}</p>
                     <div class="flex space-x-2">
                         <a href="#" class="text-blue-500 hover:text-blue-700">
                             <i class="fab fa-github"></i>

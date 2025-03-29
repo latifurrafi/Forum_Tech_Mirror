@@ -195,7 +195,7 @@ def user_profile(request, username):
     page = request.GET.get('page')
     posts = paginator.get_page(page)
 
-    post_count = Post.objects.filter(author=user).count()
+    post_count = posts.paginator.count
     comment_count = Comment.objects.filter(user=user).count()
     upvote_count = Vote.objects.filter(user=user, value=1).count()
     downvote_count = Vote.objects.filter(user=user, value=-1).count()
@@ -207,9 +207,11 @@ def user_profile(request, username):
         'comment_count': comment_count,
         'upvote_count': upvote_count,
         'downvote_count': downvote_count,
+        'profile_created_at': user.profile.created_at,  # Add this line
     }
 
     return render(request, 'user_profile.html', context)
+
 
 
 @login_required
@@ -236,7 +238,7 @@ def trending_topics_api(request):
 def get_trending_topics():
     last_24_hours = now() - timedelta(hours=24)
     trending_topics = Discussion.objects.filter(created_at__gte=last_24_hours) \
-        .annotate(activity_score=(Count('upvotes') + Count('views') + Count('comments_count'))) \
+        .annotate(activity_score=(Count('upvotes') + Count('comments_count'))) \
         .order_by('-activity_score')[:5]  # Get top 5 trending topics
     return trending_topics
 
